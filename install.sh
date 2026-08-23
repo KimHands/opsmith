@@ -28,15 +28,15 @@ ln -sfn "$OPS/AGENTS.md" "$LINK"
 # 3) settings.json 병합 (멱등, .bak 백업)
 SETTINGS="$CDIR/settings.json" MIRROR="$WORKFLOW_MIRROR_DEST" SOUND="$WORKFLOW_SOUND" \
 python3 - <<'PY'
-import json, os
+import json, os, shutil
 p = os.environ["SETTINGS"]; home = os.environ["HOME"]
 mirror = os.environ.get("MIRROR",""); sound = os.environ.get("SOUND","off")
+if os.path.exists(p):
+    shutil.copy2(p, p+".bak")
 try:
     with open(p) as f: d = json.load(f)
 except (FileNotFoundError, ValueError):
     d = {}
-if os.path.exists(p):
-    with open(p+".bak","w") as f: json.dump(d, f, ensure_ascii=False, indent=1)
 d.setdefault("permissions", {}).setdefault("allow", [])
 d.setdefault("hooks", {})
 
@@ -47,12 +47,12 @@ def has_cmd(event, needle):
     return False
 
 def add(event, cmd, extra=None):
-    if has_cmd(event, cmd.split()[0] if " " in cmd else cmd): return
+    if has_cmd(event, cmd): return
     hook = {"type":"command","command":cmd}
     if extra: hook.update(extra)
     d["hooks"].setdefault(event, []).append({"hooks":[hook]})
 
-perm = f"Read(//{home}/Ops/**)"
+perm = f"Read(//{home.lstrip('/')}/Ops/**)"
 if perm not in d["permissions"]["allow"]:
     d["permissions"]["allow"].append(perm)
 

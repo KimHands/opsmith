@@ -32,6 +32,10 @@ python3 -c "import json,os; d=json.load(open(os.environ['HOME']+'/.claude/settin
   assert any('session-guard' in h['command'] for b in d['hooks']['SessionStart'] for h in b['hooks']), 'guard 훅 없음'; \
   assert any('mirror-memory' in h['command'] for b in d['hooks']['Stop'] for h in b['hooks']), 'mirror 훅 없음'; \
   assert any('Ops' in p for p in d['permissions']['allow']), 'Read 권한 없음'" || fail "settings 병합 검증 실패"
+python3 -c "import json,os; d=json.load(open(os.environ['HOME']+'/.claude/settings.json')); \
+  assert not any('afplay' in h['command'] for b in d['hooks'].get('Stop',[]) for h in b['hooks']), 'sound=off인데 Stop에 afplay 존재'; \
+  assert not any('Ping' in h['command'] for b in d['hooks'].get('Notification',[]) for h in b['hooks']), 'sound=off인데 Notification에 Ping 존재'" \
+  || fail "sound=off 검증 실패"
 grep -q ">>> my-workflow >>>" "$HOME/.zshrc" || fail "zshrc 마커 없음"
 pass "1차 설치"
 
