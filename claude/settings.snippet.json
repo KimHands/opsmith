@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": ["Read(//$HOME/Ops/**)"]
+  },
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "python3 $HOME/Ops/bin/session-guard.py" } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "$HOME/Ops/bin/mirror-memory.sh", "async": true } ] }
+    ]
+  }
+}
