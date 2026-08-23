@@ -1,0 +1,4 @@
+config.sh
+*.bak
+__pycache__/
+.DS_Store
