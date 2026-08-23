@@ -50,6 +50,8 @@ ops                      # ~/Ops 로 이동
 ```
 ops/          ~/Ops 로 설치될 템플릿 (규칙·domains·bin·adr·golden)
 claude/       ~/.claude 에 병합될 훅/권한 스니펫
+              (settings.snippet.json 은 예시용 — $HOME 경로는 install.sh 가 실행 시점에 치환하므로
+               직접 복사하지 말고 반드시 install.sh 를 통해 설치하세요)
 config.example.sh  사용자가 채우는 값
 install.sh · uninstall.sh
 docs/         설계 철학·버린 대안·운용 설명서

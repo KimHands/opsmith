@@ -4,8 +4,8 @@
 set -uo pipefail
 [ $# -eq 1 ] || { echo "usage: collect-golden.sh <라벨>"; exit 1; }
 R="$HOME/Ops/golden/runs/$1"; mkdir -p "$R"
-P="$HOME/Desktop/Projects"; O="$HOME/Desktop/Project"        # 이사 전/후 경로 모두 지원
-d() { [ -d "$P/$1" ] && echo "$P/$1" || echo "$O/$2"; }
+P="$HOME/Desktop/Projects"
+d() { echo "$P/$1"; }
 ask() {
   local id=$1 dir=$2 q=$3
   [ -d "$dir" ] || { echo "SKIP: $dir 없음" > "$R/$id.txt"; echo "  $id SKIP"; return; }

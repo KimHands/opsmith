@@ -19,6 +19,7 @@ sed -e "s|{{NAME}}|$NAME|g" -e "s|{{FIELD}}|$FIELD|g" -e "s|{{LANG}}|$WORKFLOW_L
 rm -f "$OPS/AGENTS.md.tmpl"
 chmod +x "$OPS"/bin/*.sh "$OPS"/bin/*.py 2>/dev/null || true
 cp "$CONFIG" "$OPS/config.sh"      # mirror 스크립트가 소싱
+[ -f "$OPS/golden/gold-set.md" ] || cp "$OPS/golden/gold-set.example.md" "$OPS/golden/gold-set.md"
 
 # 2) ~/.claude/CLAUDE.md → ~/Ops/AGENTS.md 심링크 (기존 실파일은 백업)
 LINK="$CDIR/CLAUDE.md"
