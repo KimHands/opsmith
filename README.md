@@ -1,4 +1,4 @@
-# my-workflow
+# opsmith
 
 **Claude Code를 위한 개인 운용체계(operating layer) 템플릿.**
 규칙은 항상 주입되는 문서로, 반복 작업은 스크립트로, 검증은 다른 벤더로 —
@@ -21,8 +21,8 @@
 **요구사항:** [Claude Code](https://code.claude.com) · Python 3 · bash · git. (외부 의존성 없음, 표준 라이브러리만.)
 
 ```bash
-git clone https://github.com/<your>/my-workflow.git
-cd my-workflow
+git clone https://github.com/KimHands/opsmith.git
+cd opsmith
 cp config.example.sh config.sh    # 이름·언어·미러대상·사운드를 채운다
 bash install.sh
 source ~/.zshrc                    # 단축키 즉시 반영

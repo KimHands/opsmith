@@ -1,4 +1,4 @@
-# my-workflow 설정. 이 파일을 config.sh 로 복사해 값을 채운 뒤 install.sh 를 실행하세요.
+# opsmith 설정. 이 파일을 config.sh 로 복사해 값을 채운 뒤 install.sh 를 실행하세요.
 #   cp config.example.sh config.sh
 
 # 전역 규칙(AGENTS.md)에 들어갈 소개. 비워두면 플레이스홀더가 남습니다.

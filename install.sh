@@ -72,7 +72,7 @@ print("settings 병합 완료")
 PY
 
 # 4) ~/.zshrc 단축키 (마커 블록, 재실행 안전)
-ZRC="$HOME/.zshrc"; A="# >>> my-workflow >>>"; B="# <<< my-workflow <<<"
+ZRC="$HOME/.zshrc"; A="# >>> opsmith >>>"; B="# <<< opsmith <<<"
 touch "$ZRC"
 if grep -qF "$A" "$ZRC"; then
   awk -v a="$A" -v b="$B" '$0==a{s=1} !s{print} $0==b{s=0}' "$ZRC" > "$ZRC.tmp" && mv "$ZRC.tmp" "$ZRC"

@@ -36,7 +36,7 @@ python3 -c "import json,os; d=json.load(open(os.environ['HOME']+'/.claude/settin
   assert not any('afplay' in h['command'] for b in d['hooks'].get('Stop',[]) for h in b['hooks']), 'sound=off인데 Stop에 afplay 존재'; \
   assert not any('Ping' in h['command'] for b in d['hooks'].get('Notification',[]) for h in b['hooks']), 'sound=off인데 Notification에 Ping 존재'" \
   || fail "sound=off 검증 실패"
-grep -q ">>> my-workflow >>>" "$HOME/.zshrc" || fail "zshrc 마커 없음"
+grep -q ">>> opsmith >>>" "$HOME/.zshrc" || fail "zshrc 마커 없음"
 [ -f "$HOME/Ops/golden/gold-set.md" ] || fail "gold-set.md 미생성"
 pass "1차 설치"
 
@@ -45,7 +45,7 @@ bash install.sh >/dev/null
 SC=$(python3 -c "import json,os; d=json.load(open(os.environ['HOME']+'/.claude/settings.json')); \
   print(sum('session-guard' in h['command'] for b in d['hooks']['SessionStart'] for h in b['hooks']))")
 [ "$SC" = "1" ] || fail "멱등성 위반: guard 훅 $SC개"
-MC=$(grep -c ">>> my-workflow >>>" "$HOME/.zshrc")
+MC=$(grep -c ">>> opsmith >>>" "$HOME/.zshrc")
 [ "$MC" = "1" ] || fail "멱등성 위반: zshrc 마커 $MC개"
 pass "멱등성"
 

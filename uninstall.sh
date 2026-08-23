@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-CDIR="$HOME/.claude"; ZRC="$HOME/.zshrc"; A="# >>> my-workflow >>>"; B="# <<< my-workflow <<<"
+CDIR="$HOME/.claude"; ZRC="$HOME/.zshrc"; A="# >>> opsmith >>>"; B="# <<< opsmith <<<"
 
 # 1) zshrc 마커 블록 제거
 if [ -f "$ZRC" ] && grep -qF "$A" "$ZRC"; then
