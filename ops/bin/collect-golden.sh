@@ -18,7 +18,7 @@ G5DIR="${TMPDIR:-/tmp}/golden-g5-scratch"
 mkdir -p "$G5DIR" && touch "$G5DIR/dummy.txt"   # Desktop 오염 방지: 임시 디렉터리 사용
 ask G1 "$(d my-project my-project)"  "이 프로젝트 지금 어디까지 됐어?"
 ask G2 "$HOME"                          "다음 주 학회 발표자료 만들어야 해. 폴더 어디에 만들까?"
-ask G3 "$([ -d "$P/2026-crypto-contest" ] && echo "$P/2026-crypto-contest" || echo "$HOME/Desktop/claude_etc/2026_National cryptography contest")" \
+ask G3 "$([ -d "$P/2026-paper" ] && echo "$P/2026-paper" || echo "$HOME/Desktop/Projects/2026-paper")" \
                                         "논문 3장 제목을 바꾸려면 어떤 방식으로 해야 해? 방법만 설명하고 실제로 고치지는 마."
 ask G4 "$([ -d "$P/2026-08-tech-seminar" ] && echo "$P/2026-08-tech-seminar" || echo "$HOME/Desktop/TEST")" \
                                         "outline 대로 슬라이드를 만들려면 어떤 방식으로 할 거야? 방법만 설명하고 실제로 만들지는 마."

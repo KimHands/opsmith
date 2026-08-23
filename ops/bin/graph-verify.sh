@@ -5,7 +5,7 @@
 #        ↓
 #   [Claude] 구현            ← 이미 끝난 산출물이 입력
 #        ↓
-#   [Codex] 검증             ← 다른 벤더. 자기검토는 검증에 산입 안 함
+#   [교차검증] 검증           ← 다른 벤더. 자기검토는 검증에 산입 안 함
 #        ↓ 지적 있음 → 루프백 (상한 2회)
 #        ↓ 상한 초과 → [사람] 판정
 #   [사람] 승인 게이트        ← 배포·발송·삭제는 여기서만
@@ -26,7 +26,7 @@ echo "  주장: $CLAIM"
 round=1
 while [ "$round" -le "$MAX" ]; do
   echo
-  echo "── 라운드 $round/$MAX : [Codex] 검증 노드"
+  echo "── 라운드 $round/$MAX : [교차검증] 검증 노드"
   OUT="$RUN/round-$round.md"
   codex exec --skip-git-repo-check > "$OUT" 2>&1 <<EOF || true
 당신은 다른 벤더(OpenAI) 모델로서 **적대적 교차검증**을 합니다. 같은 벤더끼리는 편향을 공유하므로
