@@ -31,6 +31,22 @@ with open(p,"w") as f: json.dump(d, f, ensure_ascii=False, indent=1)
 print("제거: ~/.claude/settings.json 훅/권한")
 PY
 
+# 2b) 전역 git 훅 원복 (opsmith가 걸어둔 hooksPath만 해제/복원)
+if command -v git >/dev/null 2>&1; then
+  CUR="$(git config --global core.hooksPath 2>/dev/null || true)"
+  if [ "$CUR" = "$HOME/Ops/git-hooks" ]; then
+    PREV="$(git config --global opsmith.prevHooksPath 2>/dev/null || true)"
+    if [ -n "$PREV" ]; then
+      git config --global core.hooksPath "$PREV"
+      git config --global --unset opsmith.prevHooksPath
+      echo "복원: core.hooksPath → $PREV"
+    else
+      git config --global --unset core.hooksPath
+      echo "제거: 전역 core.hooksPath (커밋 메시지 훅)"
+    fi
+  fi
+fi
+
 # 3) 심링크 원복
 LINK="$CDIR/CLAUDE.md"
 if [ -L "$LINK" ]; then

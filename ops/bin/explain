@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# 셸 명령어나 코드를 로컬 LLM으로 설명.
+# 사용법:
+#   explain "tar -xzvf file.tar.gz"
+#   explain < script.sh
+set -euo pipefail
+DIR="$(cd "$(dirname "$0")" && pwd)"
+SYS="You explain shell commands and code clearly and briefly in Korean. Use bullet points. No fluff."
+if [ -t 0 ]; then
+  "$DIR/llm" -s "$SYS" "이걸 설명해줘: $*"
+else
+  cat | "$DIR/llm" -s "$SYS" "이 코드/명령을 설명해줘. ${*:-}"
+fi

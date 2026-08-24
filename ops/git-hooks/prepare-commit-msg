@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# opsmith: 로컬 LLM(LM Studio)으로 커밋 메시지 초안을 자동 생성한다.
+# 안전 원칙 — 커밋을 절대 막지 않는다. 어떤 실패든 조용히 통과(exit 0).
+#
+# 끄는 법:
+#   일회성:  NO_AI_COMMIT=1 git commit
+#   영구:    git config --global --unset core.hooksPath   (opsmith 훅 전체 해제)
+#
+# 인자: $1=메시지파일  $2=소스(message|template|merge|squash|commit|"")  $3=sha
+set -uo pipefail
+MSGFILE="$1"; SRC="${2:-}"
+
+# -m / -F / -t / merge / squash / amend(-C) 등 이미 메시지가 정해진 경우엔 손대지 않는다
+[ -n "$SRC" ] && exit 0
+[ -n "${NO_AI_COMMIT:-}" ] && exit 0
+
+# 이미 사람이 쓴 내용이 있으면(주석 제외 비어있지 않으면) 손대지 않는다
+if grep -qvE '^\s*(#.*)?$' "$MSGFILE" 2>/dev/null; then exit 0; fi
+
+HOST="${LLM_HOST:-http://localhost:1234}"
+LLM="$HOME/Ops/bin/llm"
+[ -x "$LLM" ] || exit 0
+
+# 서버가 안 떠 있으면 즉시 통과 (1초 컷)
+curl -sf -m 1 "$HOST/v1/models" >/dev/null 2>&1 || exit 0
+
+DIFF="$(git diff --staged 2>/dev/null)"
+[ -z "$DIFF" ] && exit 0
+
+SYS="You write concise git commit messages. Output ONLY the message: a 50-char-max subject line in Korean (imperative mood, no trailing period), a blank line, then 1-3 short bullet points. No code fences, no preamble."
+
+# 빠른 7B, 넉넉잡아 20초. 실패/타임아웃이면 빈손으로 통과.
+DRAFT="$(printf '%s' "$DIFF" | head -c 12000 \
+  | LLM_CURL_TIMEOUT=20 "$LLM" -s "$SYS" "이 diff에 대한 커밋 메시지를 작성해줘." 2>/dev/null)" || exit 0
+[ -z "$DRAFT" ] && exit 0
+
+# 초안을 파일 맨 위에 얹고, 원래 내용(주석 템플릿)은 아래에 보존
+TMP="$(mktemp)" || exit 0
+{
+  printf '%s\n' "$DRAFT"
+  echo
+  echo "# ↑ 로컬 LLM 초안(7B). 그대로 저장하거나 고치세요. 비우면 커밋 취소."
+  cat "$MSGFILE"
+} > "$TMP" && mv "$TMP" "$MSGFILE"
+exit 0

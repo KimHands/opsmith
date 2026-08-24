@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# staged 변경으로 git 커밋 메시지 초안 생성 (로컬 LLM).
+# 사용법:
+#   git add -p
+#   gitmsg            # 메시지 초안 출력
+#   gitmsg -c         # 초안으로 바로 커밋 (에디터에서 수정 가능)
+set -euo pipefail
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+DIFF="$(git diff --staged)"
+if [ -z "$DIFF" ]; then
+  echo "staged 변경이 없습니다. 'git add' 먼저 하세요." >&2
+  exit 1
+fi
+
+SYS="You write concise git commit messages. Output ONLY the message: a 50-char-max subject line in Korean (imperative mood, no trailing period), a blank line, then 1-3 short bullet points explaining what and why. No code fences, no preamble."
+
+MSG=$(printf '%s' "$DIFF" | head -c 12000 | "$DIR/llm" -f -s "$SYS" "이 diff에 대한 커밋 메시지를 작성해줘.")
+
+if [[ "${1:-}" == "-c" ]]; then
+  echo "$MSG" | git commit -eF -
+else
+  echo "$MSG"
+fi

@@ -18,7 +18,15 @@ sed -e "s|{{NAME}}|$NAME|g" -e "s|{{FIELD}}|$FIELD|g" -e "s|{{LANG}}|$WORKFLOW_L
   "$OPS/AGENTS.md.tmpl" > "$OPS/AGENTS.md"
 rm -f "$OPS/AGENTS.md.tmpl"
 chmod +x "$OPS"/bin/*.sh "$OPS"/bin/*.py 2>/dev/null || true
+chmod +x "$OPS"/bin/llm "$OPS"/bin/gitmsg "$OPS"/bin/explain 2>/dev/null || true
+chmod +x "$OPS"/git-hooks/* 2>/dev/null || true
 cp "$CONFIG" "$OPS/config.sh"      # mirror 스크립트가 소싱
+
+# 1b) 커밋 메시지 초안 훅은 설치만 하고 켜지 않는다(옵트인).
+#     전역 core.hooksPath는 husky/pre-commit 등 저장소별 훅을 무력화하므로 자동 활성화하지 않는다.
+#     주 사용 흐름은 Claude Code가 `gitmsg`으로 메시지를 만드는 것(AGENTS.md 규칙). 훅은 수동 커밋용 보조.
+#     켜려면:  git config --global core.hooksPath ~/Ops/git-hooks
+#     끄려면:  git config --global --unset core.hooksPath
 [ -f "$OPS/golden/gold-set.md" ] || cp "$OPS/golden/gold-set.example.md" "$OPS/golden/gold-set.md"
 
 # 2) ~/.claude/CLAUDE.md → ~/Ops/AGENTS.md 심링크 (기존 실파일은 백업)
@@ -87,10 +95,25 @@ newproj() {
 }
 proj() { cd "\$HOME/Desktop/Projects/\$1"; }
 alias ops="cd \$HOME/Ops"
+
+# 로컬 LLM (LM Studio) — 작은 작업을 로컬로
+export PATH="\$HOME/Ops/bin:\$HOME/.lmstudio/bin:\$PATH"
+export LLM_HOST="http://localhost:1234"
+export LLM_FAST="qwen/qwen2.5-coder-7b"
+export LLM_BIG="qwen/qwen3-coder-30b"
+export LLM_TTL=600
+llm-up()   { lms server start >/dev/null 2>&1 && echo "로컬 LLM 서버 ON (\$LLM_HOST)"; }
+llm-down() { lms unload --all 2>/dev/null && echo "모든 모델 언로드됨 (RAM 해제)"; }
+alias ask='llm'
+alias ask+='llm -f'
+alias llmps='lms ps'
 $B
 EOF
 
 echo "설치 완료: $OPS · $LINK"
 echo "  단축키: newproj <이름> [dev|deck|hwp|paper|career] · proj <이름> · ops"
+echo "  로컬 LLM: ask · ask+ · gitmsg · explain · llm-up · llm-down (LM Studio 필요)"
+echo "  커밋 메시지: Claude Code가 gitmsg으로 초안(AGENTS.md 규칙). 수동 커밋 훅은 옵트인:"
+echo "             git config --global core.hooksPath ~/Ops/git-hooks"
 [ -n "$WORKFLOW_MIRROR_DEST" ] && echo "  메모리 미러: $WORKFLOW_MIRROR_DEST" || echo "  메모리 미러: 비활성(config 비어 있음)"
 echo "  새 zsh: source ~/.zshrc · Claude Code 재시작 시 훅 로드"
