@@ -2,7 +2,7 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
-![tests](https://img.shields.io/badge/tests-48%20passing-brightgreen.svg)
+[![CI](https://github.com/KimHands/ccpilot/actions/workflows/ci.yml/badge.svg)](https://github.com/KimHands/ccpilot/actions/workflows/ci.yml)
 ![deps](https://img.shields.io/badge/dependencies-none%20(stdlib)-success.svg)
 ![for](https://img.shields.io/badge/for-Claude%20Code-8A2BE2.svg)
 
@@ -113,7 +113,7 @@ pw_route/      # B: 에이전트 라우팅 (discover·rules·cli)
 agents/        # B: security-auditor·test-engineer 정의
 commands/      # 슬래시 명령 (project-*·route)
 install.sh     # ~/.claude 로 설치
-tests/         # pytest (48 tests)
+tests/         # pytest (62 tests)
 docs/superpowers/  # 설계 spec + 구현 plan (A·B)
 ```
 
@@ -121,7 +121,7 @@ docs/superpowers/  # 설계 spec + 구현 plan (A·B)
 
 ```bash
 python3 -m venv venv && ./venv/bin/pip install pytest
-./venv/bin/python -m pytest -q      # 48 passed
+./venv/bin/python -m pytest -q      # 62 passed
 ```
 
 Python 3.10+ 표준 라이브러리만 사용한다(런타임 의존성 없음). 슬래시 명령은 `python3 ~/.claude/pw*/cli.py`를 스크립트로 실행하므로 각 `cli.py`는 sys.path 부트스트랩을 포함한다.
