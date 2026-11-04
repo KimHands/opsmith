@@ -82,6 +82,10 @@ bash install.sh >/dev/null
 [ "$(count_hook SessionStart "$CCPILOT_HOOK")" = "1" ] || fail "ccpilot 훅 개수 이상"
 [ "$(count_hook SessionStart "$GUARD_HOOK")" = "1" ] || fail "guard 훅 개수 이상"
 user_settings_kept || fail "사용자 설정 유실"
+mkdir -p "$TMP/proj"
+for hook in "$CCPILOT_HOOK" "$GUARD_HOOK"; do
+  (cd "$TMP/proj" && echo '{}' | bash -c "$hook" >/dev/null) || fail "훅 실행 실패: $hook"
+done
 pass "ccpilot 공존"
 
 bash uninstall.sh >/dev/null
