@@ -12,12 +12,15 @@
 ![bash](https://img.shields.io/badge/install-bash-4EAA25?logo=gnubash&logoColor=white)
 ![Dependencies](https://img.shields.io/badge/dependencies-none_(stdlib)-success)
 ![License](https://img.shields.io/badge/License-MIT-black)
+[![CI](https://github.com/KimHands/opsmith/actions/workflows/ci.yml/badge.svg)](https://github.com/KimHands/opsmith/actions/workflows/ci.yml)
 
 </div>
 
 > **무엇이 아닌가** — opsmith은 스킬·플러그인이 **아닙니다**. 특정 도구에 묶이지 않는
 > **규칙·스크립트·훅으로 된 운용 계층**을 `~/Ops`에 설치하고, `~/.claude`에는 훅·권한만 얹습니다.
 > 기존 설정을 덮어쓰지 않고 병합하며, 언제든 `uninstall.sh`로 되돌립니다.
+>
+> **공개본 상태** — 2026-08 기준 스냅샷이며, 작성자의 실제 운용과 다를 수 있습니다.
 
 ---
 
@@ -85,6 +88,7 @@ opsmith/
 ├── install.sh              멱등 설치기
 ├── uninstall.sh            병합분만 되돌림 (사용자 데이터 보존)
 ├── docs/                   설계 철학·버린 대안·운용 설명서
+├── modules/ccpilot/        선택 모듈 (기본 설치에 포함되지 않음)
 └── tests/                  격리 스모크 테스트
 ```
 
@@ -147,10 +151,27 @@ ops                      # ~/Ops 로 이동
 
 ---
 
+## 🧩 선택 모듈: ccpilot
+
+> 유지보수 중단. 작성자도 현재 사용하지 않으며(2026-08 워크플로우에서 비활성화), 테스트만 CI에서 유지합니다. 프리셋의 플러그인 목록은 작성 당시 환경 기준입니다.
+
+프리셋으로 프로젝트별 플러그인을 구성하고, `/route`로 에이전트 라우팅 계획을 만드는 도구입니다. `/route`는 계획만 만들며 실행은 메인 세션이 합니다.
+
+```bash
+bash modules/ccpilot/install.sh   # ~/.claude 에 설치. 같은 이름의 파일은 덮어씁니다
+```
+
+제거 방법과 주의 사항은 [모듈 README](modules/ccpilot/README.md)를 보세요.
+
+`uninstall.sh`는 두 훅이 `settings.json`에서 별도 그룹일 때만 ccpilot 훅을 보존합니다. 한 그룹으로 합쳐 두면 함께 지워집니다.
+
+---
+
 ## ✅ 검증
 
 ```bash
-bash tests/install-smoke.sh   # 임시 HOME에서 설치·멱등성 검증 (실제 홈 무해)
+bash tests/install-smoke.sh   # 임시 HOME에서 설치·멱등성·ccpilot 공존 검증 (실제 홈 무해)
+(cd modules/ccpilot && python3 -m pytest -q)   # ccpilot 테스트 (pytest 필요)
 ```
 
 ---
