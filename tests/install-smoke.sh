@@ -20,6 +20,15 @@ EOF
 
 pass() { printf 'PASS %s\n' "$1"; }
 fail() { printf 'FAIL %s\n' "$1"; exit 1; }
+count_hook() {
+  EVENT="$1" CMD="$2" python3 -c "import json,os; d=json.load(open(os.environ['HOME']+'/.claude/settings.json')); \
+  print(sum(h['command']==os.environ['CMD'] for b in d['hooks'].get(os.environ['EVENT'],[]) for h in b['hooks']))"
+}
+user_settings_kept() {
+  python3 -c "import json,os; d=json.load(open(os.environ['HOME']+'/.claude/settings.json')); \
+  assert d['model']=='x'; assert 'Bash(ls)' in d['permissions']['allow']; \
+  assert any(h['command']=='mine.sh' for b in d['hooks']['Stop'] for h in b['hooks'])"
+}
 
 bash install.sh >/dev/null
 
@@ -38,6 +47,9 @@ python3 -c "import json,os; d=json.load(open(os.environ['HOME']+'/.claude/settin
   || fail "sound=off 검증 실패"
 grep -q ">>> opsmith >>>" "$HOME/.zshrc" || fail "zshrc 마커 없음"
 [ -f "$HOME/Ops/golden/gold-set.md" ] || fail "gold-set.md 미생성"
+for p in pw pw_route commands agents skills project-presets.json route-rules.json; do
+  [ ! -e "$HOME/.claude/$p" ] || fail "opsmith 설치가 ccpilot 경로를 만듦: $p"
+done
 pass "1차 설치"
 
 # 멱등성: 다시 돌려도 훅/마커가 중복되지 않아야 한다
@@ -48,5 +60,34 @@ SC=$(python3 -c "import json,os; d=json.load(open(os.environ['HOME']+'/.claude/s
 MC=$(grep -c ">>> opsmith >>>" "$HOME/.zshrc")
 [ "$MC" = "1" ] || fail "멱등성 위반: zshrc 마커 $MC개"
 pass "멱등성"
+
+# ccpilot 공존: 사용자 설정이 있는 HOME에서, 공백 경로의 클론을 다른 위치에서 설치한다
+export HOME="$TMP/h2"
+mkdir -p "$HOME/.claude"
+cat > "$HOME/.claude/settings.json" <<'EOF'
+{"model":"x","permissions":{"allow":["Bash(ls)"]},"hooks":{"Stop":[{"hooks":[{"type":"command","command":"mine.sh"}]}]}}
+EOF
+CLONE="$TMP/with space"
+cp -R "$WORK" "$CLONE"
+install_ccpilot() { (cd / && bash "$CLONE/modules/ccpilot/install.sh" >/dev/null); }
+CCPILOT_HOOK='python3 ~/.claude/pw/hook_sessionstart.py'
+GUARD_HOOK="python3 $HOME/Ops/bin/session-guard.py"
+
+install_ccpilot
+[ -f "$HOME/.claude/pw/cli.py" ] || fail "ccpilot pw 미설치"
+[ -f "$HOME/.claude/skills/project-kickoff/SKILL.md" ] || fail "ccpilot 스킬 미설치"
+bash install.sh >/dev/null
+install_ccpilot
+bash install.sh >/dev/null
+[ "$(count_hook SessionStart "$CCPILOT_HOOK")" = "1" ] || fail "ccpilot 훅 개수 이상"
+[ "$(count_hook SessionStart "$GUARD_HOOK")" = "1" ] || fail "guard 훅 개수 이상"
+user_settings_kept || fail "사용자 설정 유실"
+pass "ccpilot 공존"
+
+bash uninstall.sh >/dev/null
+[ "$(count_hook SessionStart "$CCPILOT_HOOK")" = "1" ] || fail "opsmith 제거가 ccpilot 훅을 지움"
+[ "$(count_hook SessionStart "$GUARD_HOOK")" = "0" ] || fail "guard 훅이 남음"
+user_settings_kept || fail "제거 후 사용자 설정 유실"
+pass "opsmith 제거 후 ccpilot 보존"
 
 echo "SMOKE OK"

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+cd "$(dirname "$0")"
 DEST="$HOME/.claude"
 mkdir -p "$DEST/commands" "$DEST/pw"
 cp -R pw/. "$DEST/pw/"
